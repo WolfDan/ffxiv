@@ -70,11 +70,11 @@ func GetCharacter(id string) (*Character, error) {
 
 	isTwoHandedWeapon := strings.Contains(characterWeapon, "Two-handed")
 
-	characterItems := document.Find(".db-tooltip .db-tooltip__wrapper .item_detail_box")
+	characterItems := document.Find(".db-tooltip__wrapper")
 
-	itemsCount := 14
+	itemsCount := 12
 
-	var itemsIlvl [14]int
+	var itemsIlvl [12]int
 
 	hasSoul := false
 
@@ -102,7 +102,7 @@ func GetCharacter(id string) (*Character, error) {
 				return false
 			}
 
-			itemsIlvl[counter] = itemLevel
+			itemsIlvl[counter-1] = itemLevel
 
 			counter--
 
@@ -110,10 +110,26 @@ func GetCharacter(id string) (*Character, error) {
 		})
 	}
 
+	// We take into account the weapon
+	itemsCount++
+
 	iLvlSum := 0
 	for _, num := range itemsIlvl {
+		fmt.Println(num)
 		iLvlSum += num
 	}
+
+	weapon := document.Find(".character__class__arms").First().Find(".db-tooltip__item__level").Text()
+
+	re := regexp.MustCompile("[0-9]+")
+	weaponIlvlText := re.FindStringSubmatch(weapon)[0]
+	weaponIlvl, err := strconv.Atoi(weaponIlvlText)
+
+	if err != nil {
+		return nil, err
+	}
+
+	iLvlSum += weaponIlvl
 
 	if isTwoHandedWeapon {
 		itemsCount-- // No shields
@@ -123,9 +139,11 @@ func GetCharacter(id string) (*Character, error) {
 		itemsCount-- // Has soul stone
 	}
 
+	fmt.Println(itemsCount)
+
 	Ilvl := iLvlSum / itemsCount
 
-	level, err := strconv.Atoi(characterLevel)
+	level, err := strconv.Atoi(re.FindStringSubmatch(characterLevel)[0])
 
 	if err != nil {
 		return nil, err

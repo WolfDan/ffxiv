@@ -1,10 +1,10 @@
 package ffxiv_test
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/WolfDan/ffxiv"
+	"./"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,8 +18,6 @@ func TestGetCharacter(t *testing.T) {
 		Class:     "Conjurer",
 		Server:    "Asura",
 	}
-
-	fmt.Print(character)
 
 	assert.NoError(t, err)
 	assert.Equal(t, characterResult, character)
